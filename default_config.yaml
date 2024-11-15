@@ -1,0 +1,26 @@
+# Default values for the experiment details
+default_ip_address: '10.119.220.209:8080' # Paulsson/Basan lab's readers
+default_experiment_name: ''
+default_interval: 5 # s
+default_standard_curve: 'Ecoli-ReusableGlassTube'
+default_username: 'Avik'
+
+# Where to save the data
+default_folder: '~/Desktop'
+
+# Testing and debugging
+simulation: False
+sim_data_rate: 0.1 # s
+connection_timeout: 3 # s
+
+# Behaviour
+auto_connect: True
+use_placeholder_names: True # whether to fill the reactor table with placeholder names, or leave them empty
+highlight_colors: ["#3B9AB2", "#EBCC2A", "#F21A00"]
+always_refresh: False # whether to refresh whenever data is received, or only after all devices have been read
+
+# Cosmetic
+gray: "#D3D3D3"
+antialiasing: True
+line_width: 2
+padding: 0.06
