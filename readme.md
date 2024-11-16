@@ -31,7 +31,9 @@ Otherwise, specify the IP address you want and click "Connect". If the connectio
 
 ### Setup samples
 
-Then, on the right, you can add labels to your samples. If you don't want the table to be automatically filled with placeholders, disable the `use_placeholder_names` option in the configuration file. 
+Then, on the right, you can add labels to your samples. 
+
+To skip recording a channel, simply erase its name. If you don't want the table to be automatically filled with placeholders, disable the `use_placeholder_names` option in the configuration file.
 
 Note that the cells can be copy and pasted freely to text files or the Excel.
 

@@ -1,4 +1,4 @@
-#!/bin/env python3
+#D3D3D3!/bin/env python3
 import sys, os
 import math
 import requests
@@ -131,6 +131,7 @@ class OD_reader_app(QMainWindow):
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setBackground('w')
         self.plot_widget.setAxisItems({'bottom': pg.DateAxisItem()})
+        
         pg.setConfigOptions(antialias = mem.config['antialiasing'])
 
         # Strip of buttons for recording data
@@ -166,11 +167,22 @@ class OD_reader_app(QMainWindow):
         self.annotation_field.editingFinished.connect(lambda: set_annotation(self))
         self.record_strip_layout.addWidget(self.annotation_field)
 
-        self.record_strip_layout.addWidget(QLabel("Downsample:"))
+        self.record_strip_layout.addWidget(QLabel("N:"))
+
+        self.max_points_field = QLineEdit()
+        self.max_points_field.setFixedWidth(50)
+        self.max_points_field.setText(str(mem.config['max_points']))
+        self.max_points_field.setValidator(QtGui.QIntValidator(1, mem.config['max_points']))
+        self.max_points_field.setToolTip('Plot the last N points.')
+        self.max_points_field.editingFinished.connect(self.draw_plots)
+        self.record_strip_layout.addWidget(self.max_points_field)
+
+        self.record_strip_layout.addWidget(QLabel("/"))
+
         self.downsample_field = QLineEdit()
         self.downsample_field.setFixedWidth(50)
         self.downsample_field.setText('1')
-        self.downsample_field.setToolTip('Only plot every Nth point. All data is still recorded.')
+        self.downsample_field.setToolTip('Only plot every Nth point (all data is still recorded).')
         self.downsample_field.setValidator(QtGui.QIntValidator(1, mem.config['max_points']))
         self.downsample_field.editingFinished.connect(self.draw_plots)
         self.record_strip_layout.addWidget(self.downsample_field)
@@ -326,7 +338,7 @@ class OD_reader_app(QMainWindow):
             # Start recording data
             mem.recorder.start()
 
-    def draw_line(self, culture, color, linewidth, max_points = mem.config['max_points']):
+    def draw_line(self, culture, color, linewidth):
         '''Draw the curve for one culture.'''
         
         # Prepare the data to plot
@@ -335,10 +347,17 @@ class OD_reader_app(QMainWindow):
             downsampling = 1
             self.downsample_field.setText('1')
 
-        # Domnsample starting from the end, then keep only the last <max_points> points
-        times = [iso8601.parse_date(t).timestamp() for t in culture.times[::-downsampling][-max_points:]]
-        ods = culture.ods[::-downsampling][-max_points:]
+        max_points = int(self.max_points_field.text()) if self.max_points_field.text() else int()
+        if not max_points or max_points < 1:
+            max_points = 1
+            self.max_points_field.setText('1')
+
+        # Domnsample starting from the end, then keep only the <max_points> most recent points
+        times_str = culture.times[::-downsampling][:max_points]
+        ods = culture.ods[::-downsampling][:max_points]
         
+        times = [iso8601.parse_date(t).timestamp() for t in times_str]
+
         # Plot the data
         pen = pg.mkPen(color = color, width = linewidth)
         self.plot_widget.plot(times, ods, pen = pen, name = culture.name)
@@ -379,6 +398,12 @@ class OD_reader_app(QMainWindow):
             return
 
         self.plot_widget.clear()
+
+        # Draw the guides
+        guides = mem.config['guides'] if not self.log_scale_button.isChecked() else [math.log10(guide) for guide in mem.config['guides']]
+        guides_pen = pg.mkPen(mem.config['guides_color'], dash=[2, 4], width = mem.config['guides_width'])
+        for guide in guides:
+            self.plot_widget.addLine(y = guide, pen = guides_pen)
     
         # Get highlight keywords from the text fields
         highlight_colors = {self.highlight_fields[color].text(): color for color in mem.config['highlight_colors'] \
@@ -389,22 +414,24 @@ class OD_reader_app(QMainWindow):
         for device in mem.devices:
             for channel in mem.channels:
 
-                culture = mem.cultures[device][channel]
-                highlighted = False
+                if mem.cultures[device][channel]:
 
-                for keyword, color in highlight_colors.items():
-                    if keyword.lower() in culture.name.lower() and not highlighted:
-                        highlighted_cultures[color].append(culture)
-                        highlighted = True
+                    culture = mem.cultures[device][channel]
+                    highlighted = False
 
-                if not highlighted:
-                    self.draw_line(culture, mem.config['gray'], mem.config['normal_line_width'], max_points = mem.config['max_points'])
+                    for keyword, color in highlight_colors.items():
+                        if keyword.lower() in culture.name.lower() and not highlighted:
+                            highlighted_cultures[color].append(culture)
+                            highlighted = True
+
+                    if not highlighted:
+                        self.draw_line(culture, mem.config['gray'], mem.config['normal_line_width'])
 
         # Plot the highlighted cultures
         for color, cultures in highlighted_cultures.items():
             for culture in cultures:
                 if culture.times: # Do not plot cultures without data
-                    self.draw_line(culture, color, mem.config['highlight_line_width'], max_points = mem.config['max_points'])
+                    self.draw_line(culture, color, mem.config['highlight_line_width'])
 
         # Ensure the labels fit in the field of view
         self.plot_widget.getViewBox().autoRange(padding = mem.config['padding'])

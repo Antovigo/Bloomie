@@ -45,7 +45,11 @@ class data_recorder(QThread):
                 reactor_label = mem.main_window.reactors_table.item(channel, mem.device_ids[device]).text()
                 
                 # Make a culture object to store temporary data
-                mem.cultures[device].append(culture(reactor_label))
+                if reactor_label:
+                    mem.cultures[device].append(culture(reactor_label))
+
+                else: # don't record channels with no label
+                    mem.cultures[device].append(None)
 
     def clear_backend(self):
         '''Clear the backend of any existing data.'''
@@ -88,7 +92,8 @@ class data_recorder(QThread):
                 for channel in mem.channels:
 
                     # channel is one-indexed in backend, zero-indexed in frontend
-                    mem.api.create_samples(device, channel + 1, mem.cultures[device][channel].name, standard_curve)
+                    if mem.cultures[device][channel]:
+                        mem.api.create_samples(device, channel + 1, mem.cultures[device][channel].name, standard_curve)
 
             # Create the experiment on the backend side
             backend_experiment_name = f'mem.experiment_name_{round(datetime.now().timestamp())}' # avoid name conflicts
@@ -167,13 +172,16 @@ class data_recorder(QThread):
         simulated_data = []
         for device in mem.devices:
             for channel in mem.channels:
-                new_time = datetime.now().isoformat()
-                if mem.cultures[device][channel].ods:
-                    new_od = mem.cultures[device][channel].ods[-1] * mem.cultures[device][channel].growth_rate
-                else:
-                    new_od = 0.01 * random()
 
-                simulated_data.append({'t': new_time, 'device': device, 'channel': channel, 
-                                       'intensity': 0, 'intensity_blank': 0, 'raw_od': new_od, 'converted_od': new_od})
+                if not mem.cultures[device][channel]:
+                    new_time = datetime.now().isoformat()
+                    if mem.cultures[device][channel].ods:
+                        new_od = mem.cultures[device][channel].ods[-1] * mem.cultures[device][channel].growth_rate
+                    else:
+                        new_od = 0.01 * random()
+
+                    simulated_data.append({'t': new_time, 'device': device, 'channel': channel, 
+                                           'intensity': 0, 'intensity_blank': 0, 'raw_od': new_od, 'converted_od': new_od})
+
         return simulated_data                
 
