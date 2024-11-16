@@ -18,6 +18,7 @@ auto_connect: True
 use_placeholder_names: True # whether to fill the reactor table with placeholder names, or leave them empty
 highlight_colors: ["#3B9AB2", "#EBCC2A", "#F21A00"]
 always_refresh: False # whether to refresh whenever data is received, or only after all devices have been read
+max_points: 1000 # maximum number of points to plot in the live plot (per culture)
 
 # Cosmetic
 gray: "#D3D3D3"

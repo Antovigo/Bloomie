@@ -317,11 +317,11 @@ class OD_reader_app(QMainWindow):
             # Start recording data
             mem.recorder.start()
 
-    def draw_line(self, culture, color):
+    def draw_line(self, culture, color, max_points = mem.config['max_points']):
         '''Draw the curve for one culture.'''
         
-        times = [iso8601.parse_date(t).timestamp() for t in culture.times]
-        ods = culture.ods
+        times = [iso8601.parse_date(t).timestamp() for t in culture.times[-max_points:]]
+        ods = culture.ods[-max_points:]
         
         # Plot the data
         pen = pg.mkPen(color = color, width = mem.config['line_width'])
@@ -381,13 +381,13 @@ class OD_reader_app(QMainWindow):
                         highlighted = True
 
                 if not highlighted:
-                    self.draw_line(culture, mem.config['gray'])
+                    self.draw_line(culture, mem.config['gray'], max_points = mem.config['max_points'])
 
         # Plot the highlighted cultures
         for color, cultures in highlighted_cultures.items():
             for culture in cultures:
                 if culture.times: # Do not plot cultures without data
-                    self.draw_line(culture, color)
+                    self.draw_line(culture, color, max_points = mem.config['max_points'])
 
         # Ensure the labels fit in the field of view
         self.plot_widget.getViewBox().autoRange(padding = mem.config['padding'])
