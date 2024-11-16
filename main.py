@@ -166,6 +166,15 @@ class OD_reader_app(QMainWindow):
         self.annotation_field.editingFinished.connect(lambda: set_annotation(self))
         self.record_strip_layout.addWidget(self.annotation_field)
 
+        self.record_strip_layout.addWidget(QLabel("Downsample:"))
+        self.downsample_field = QLineEdit()
+        self.downsample_field.setFixedWidth(50)
+        self.downsample_field.setText('1')
+        self.downsample_field.setToolTip('Only plot every Nth point. All data is still recorded.')
+        self.downsample_field.setValidator(QtGui.QIntValidator(1, mem.config['max_points']))
+        self.downsample_field.editingFinished.connect(self.draw_plots)
+        self.record_strip_layout.addWidget(self.downsample_field)
+
         # Build the tab layout
         recording_tab_layout.addLayout(self.record_strip_layout)
         recording_tab_layout.addWidget(self.plot_widget)
@@ -317,14 +326,20 @@ class OD_reader_app(QMainWindow):
             # Start recording data
             mem.recorder.start()
 
-    def draw_line(self, culture, color, max_points = mem.config['max_points']):
+    def draw_line(self, culture, color, linewidth, max_points = mem.config['max_points']):
         '''Draw the curve for one culture.'''
         
-        times = [iso8601.parse_date(t).timestamp() for t in culture.times[-max_points:]]
-        ods = culture.ods[-max_points:]
+        # Prepare the data to plot
+        downsampling = int(self.downsample_field.text())
+        if not downsampling or downsampling < 1:
+            downsampling = 1
+            self.downsample_field.setText('1')
+
+        times = [iso8601.parse_date(t).timestamp() for t in culture.times[-max_points::downsampling]]
+        ods = culture.ods[-max_points::downsampling]
         
         # Plot the data
-        pen = pg.mkPen(color = color, width = mem.config['line_width'])
+        pen = pg.mkPen(color = color, width = linewidth)
         self.plot_widget.plot(times, ods, pen = pen, name = culture.name)
 
         # Add the name of the culture at the end of the curve
@@ -381,13 +396,13 @@ class OD_reader_app(QMainWindow):
                         highlighted = True
 
                 if not highlighted:
-                    self.draw_line(culture, mem.config['gray'], max_points = mem.config['max_points'])
+                    self.draw_line(culture, mem.config['gray'], mem.config['normal_line_width'], max_points = mem.config['max_points'])
 
         # Plot the highlighted cultures
         for color, cultures in highlighted_cultures.items():
             for culture in cultures:
                 if culture.times: # Do not plot cultures without data
-                    self.draw_line(culture, color, max_points = mem.config['max_points'])
+                    self.draw_line(culture, color, mem.config['highlight_line_width'], max_points = mem.config['max_points'])
 
         # Ensure the labels fit in the field of view
         self.plot_widget.getViewBox().autoRange(padding = mem.config['padding'])
