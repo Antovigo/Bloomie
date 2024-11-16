@@ -330,13 +330,14 @@ class OD_reader_app(QMainWindow):
         '''Draw the curve for one culture.'''
         
         # Prepare the data to plot
-        downsampling = int(self.downsample_field.text())
+        downsampling = int(self.downsample_field.text()) if self.downsample_field.text() else int()
         if not downsampling or downsampling < 1:
             downsampling = 1
             self.downsample_field.setText('1')
 
-        times = [iso8601.parse_date(t).timestamp() for t in culture.times[-max_points::downsampling]]
-        ods = culture.ods[-max_points::downsampling]
+        # Domnsample starting from the end, then keep only the last <max_points> points
+        times = [iso8601.parse_date(t).timestamp() for t in culture.times[::-downsampling][-max_points:]]
+        ods = culture.ods[::-downsampling][-max_points:]
         
         # Plot the data
         pen = pg.mkPen(color = color, width = linewidth)
@@ -353,10 +354,11 @@ class OD_reader_app(QMainWindow):
             text.setFont(font)
 
             try:
+                # Last point is element 0 because the list is reversed
                 if self.log_scale_button.isChecked():
-                    text.setPos(times[-1], math.log10(ods[-1]))
+                    text.setPos(times[0], math.log10(ods[0]))
                 else:
-                    text.setPos(times[-1], ods[-1])
+                    text.setPos(times[0], ods[0])
 
             except:
                 print('Error setting label position:')
