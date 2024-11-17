@@ -39,6 +39,7 @@ class CopyPasteTableWidget(QTableWidget):
         QApplication.clipboard().setText(copied_text)
 
     def paste_selection(self):
+
         # Get clipboard text
         clipboard_text = QApplication.clipboard().text()
 
@@ -61,3 +62,19 @@ class CopyPasteTableWidget(QTableWidget):
                     item = QTableWidgetItem(cell_value)
                     item.setTextAlignment(Qt.AlignCenter)
                     self.setItem(target_row, target_col, item)
+
+    def keyPressEvent(self, e):
+        '''Erase the selected cells when the delete key is pressed.'''
+
+        # Handle delete and backspace keys to clear the selected cells
+        if e.key() == Qt.Key_Delete:
+            selected_ranges = self.selectedRanges()
+            for selected_range in selected_ranges:
+                for row in range(selected_range.topRow(), selected_range.bottomRow() + 1):
+                    for col in range(selected_range.leftColumn(), selected_range.rightColumn() + 1):
+                        item = self.item(row, col)
+                        if item:
+                            item.setText("")
+        else:
+            # Call the base class implementation for other key events
+            super().keyPressEvent(e)

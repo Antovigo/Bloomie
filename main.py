@@ -4,7 +4,8 @@ import math
 import requests
 
 from datetime import datetime
-import iso8601
+import iso8601 # parse ISO 8601 dates
+from fnmatch import fnmatch # match strings with wildcards
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit
 from PyQt5.QtWidgets import QTabWidget, QTableWidgetItem, QSizePolicy, QFormLayout, QLabel, QMessageBox
@@ -15,7 +16,7 @@ import pyqtgraph as pg
 
 import websocket
 
-from copy_paste_table_widget import CopyPasteTableWidget
+from copy_paste_table_widget import CopyPasteTableWidget # variant of QTableWidget that allows for copy-pasting
 import mem
 import data_management
 import odmeter_api
@@ -130,7 +131,13 @@ class OD_reader_app(QMainWindow):
         # Plot area using PyQtGraph
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setBackground('w')
+        self.plot_widget.showGrid(x = False, y = True)
         self.plot_widget.setAxisItems({'bottom': pg.DateAxisItem()})
+
+        self.plot_widget.getAxis('left').setTextPen(mem.config['axis_text_color'])
+        self.plot_widget.getAxis('bottom').setTextPen(mem.config['axis_text_color'])
+        self.plot_widget.getAxis('left').setPen(mem.config['grid_color'])
+        self.plot_widget.getAxis('bottom').setPen(mem.config['grid_color'])
         
         pg.setConfigOptions(antialias = mem.config['antialiasing'])
 
@@ -167,7 +174,7 @@ class OD_reader_app(QMainWindow):
         self.annotation_field.editingFinished.connect(lambda: set_annotation(self))
         self.record_strip_layout.addWidget(self.annotation_field)
 
-        self.record_strip_layout.addWidget(QLabel("N:"))
+        self.record_strip_layout.addWidget(QLabel("Points:"))
 
         self.max_points_field = QLineEdit()
         self.max_points_field.setFixedWidth(50)
@@ -177,7 +184,7 @@ class OD_reader_app(QMainWindow):
         self.max_points_field.editingFinished.connect(self.draw_plots)
         self.record_strip_layout.addWidget(self.max_points_field)
 
-        self.record_strip_layout.addWidget(QLabel("/"))
+        self.record_strip_layout.addWidget(QLabel("Downsample:"))
 
         self.downsample_field = QLineEdit()
         self.downsample_field.setFixedWidth(50)
@@ -398,13 +405,7 @@ class OD_reader_app(QMainWindow):
             return
 
         self.plot_widget.clear()
-
-        # Draw the guides
-        guides = mem.config['guides'] if not self.log_scale_button.isChecked() else [math.log10(guide) for guide in mem.config['guides']]
-        guides_pen = pg.mkPen(mem.config['guides_color'], dash=[2, 4], width = mem.config['guides_width'])
-        for guide in guides:
-            self.plot_widget.addLine(y = guide, pen = guides_pen)
-    
+ 
         # Get highlight keywords from the text fields
         highlight_colors = {self.highlight_fields[color].text(): color for color in mem.config['highlight_colors'] \
                             if self.highlight_fields[color].text()}
@@ -420,12 +421,14 @@ class OD_reader_app(QMainWindow):
                     highlighted = False
 
                     for keyword, color in highlight_colors.items():
-                        if keyword.lower() in culture.name.lower() and not highlighted:
+                        
+                        # Check if the keyword is in the name, allowing '*' for a wild-card
+                        if fnmatch(culture.name.lower(), f'*{keyword}*'.lower()) and not highlighted:
                             highlighted_cultures[color].append(culture)
                             highlighted = True
 
                     if not highlighted:
-                        self.draw_line(culture, mem.config['gray'], mem.config['normal_line_width'])
+                        self.draw_line(culture, mem.config['normal_color'], mem.config['normal_line_width'])
 
         # Plot the highlighted cultures
         for color, cultures in highlighted_cultures.items():

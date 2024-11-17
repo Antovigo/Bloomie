@@ -16,18 +16,17 @@ connection_timeout: 3 # s
 # Behaviour
 auto_connect: True
 use_placeholder_names: True # whether to fill the reactor table with placeholder names, or leave them empty
-highlight_colors: ["#3B9AB2", "#EBCC2A", "#F21A00"]
 always_refresh: False # whether to refresh whenever data is received, or only after all devices have been read
 max_points: 1000 # maximum number of points to plot in the live plot (per culture)
 
 # Cosmetic
+normal_color: "#888888"
 normal_line_width: 2
+highlight_colors: ["#3B9AB2", "#EBCC2A", "#F21A00"]
 highlight_line_width: 3
-gray: "#D3D3D3"
 
-guides: [0.20, 0.10, 0.05, 0.025] # where to draw horizontal lines
-guides_color: "#DEDEDE"
-guides_width: 2
+axis_text_color: '#444444'
+grid_color: '#B3B3B3'
 
 antialiasing: True
 padding: 0.06
