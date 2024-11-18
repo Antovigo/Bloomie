@@ -20,7 +20,7 @@ always_refresh: False # whether to refresh whenever data is received, or only af
 max_points: 1000 # maximum number of points to plot in the live plot (per culture)
 
 # Cosmetic
-normal_color: "#888888"
+normal_color: "#B3B3B3" # color of non-highlighted reactors
 normal_line_width: 2
 highlight_colors: ["#3B9AB2", "#EBCC2A", "#F21A00"]
 highlight_line_width: 3
