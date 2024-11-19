@@ -1,8 +1,5 @@
 # Bloomie
 
-<img src="screenshots/bloomie_setup_view.png" alt="setup view" width="45%">
-<img src="screenshots/bloomie_record_view.png" alt="record view" width="45%">
-
 ## Dependencies
 
 Install the python dependencies:
@@ -33,9 +30,11 @@ python3 main.py
 It will automatically try to connect to the default IP address specified in your configuration file.
 Otherwise, specify the IP address you want and click "Connect". If the connection fails, it might be that the backend is not running.
 
-### Setup samples
+### Setup
 
-Then, on the right, you can add labels to your samples. 
+<img src="screenshots/bloomie_setup_view.png" alt="setup view" width="100%">
+
+After connecting to the devices, you can add labels to your samples in the table on the right.
 
 To skip recording a channel, simply erase its name. If you don't want the table to be automatically filled with placeholders, disable the `use_placeholder_names` option in the configuration file.
 
@@ -45,7 +44,11 @@ You can also adjust a few settings about your experiment – in particular, set 
 
 ### Start measurement
 
-Now, switch to the "Measurement" tab. Click on "Record" to start recording data to the file of your choice.
+Now, switch to the "Measurement" tab. 
+
+<img src="screenshots/bloomie_record_view.png" alt="record view" width="100%">
+
+Click on "Record" to start recording data to the file of your choice.
 During recording, the data is saved continuously to the file.
 
 The **Freeze plots** button allows you to stop updating the plots so you can inspect the data more closely. It does *not* interrupt data acquisition, just plotting.
