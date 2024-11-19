@@ -1,5 +1,7 @@
 # Bloomie
 
+| ![Bloomie](screenshots/bloomie_setup_view.png) | ![Bloomie](screenshots/bloomie_record_view.png) |
+
 ## Dependencies
 
 Install the python dependencies:
@@ -19,7 +21,7 @@ First, start the backend on the OD readers' host computer:
 ```bash
 ./odmeter_ctrl
 ```
-(This can be done over ssh.)
+(This can be done over ssh. In general, it is good practice to always start a fresh instance of the backend, then start Bloomie, and if you need to restart the measurement, just restart everything from the beginning.)
 
 Then, start the frontend from your computer:
 
@@ -29,8 +31,6 @@ python3 main.py
 
 It will automatically try to connect to the default IP address specified in your configuration file.
 Otherwise, specify the IP address you want and click "Connect". If the connection fails, it might be that the backend is not running.
-
-In general, it is good practice to always start a fresh instance of the backend, then start Bloomie, and if you need to restart the measurement, just restart everything from the beginning.
 
 ### Setup samples
 

@@ -452,17 +452,37 @@ class OD_reader_app(QMainWindow):
     def closeEvent(self, a0):
         '''Stop the recording loop and close the websocket when the window is closed.'''
 
-        mem.running = False
+        # Confirm before closing the window
+        if self.record_button.isChecked():
+            reply = QMessageBox.question(
+                self,
+                "Closing",
+                "Recording is in progress. Are you sure you want to quit?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+        
+            confirmed = reply == QMessageBox.Yes
 
-        if mem.ws:
-            if mem.ws.connected:
-                mem.ws.close()
+        else:
+            confirmed = True
 
-        if mem.api:
-            mem.api.experiments()[0].close()
-            mem.api.remove_sample(mem.api.samples())
+        # If the user confirms the exit, close the websocket and the API
+        if confirmed:
 
-        a0.accept()
+            mem.running = False
+
+            if mem.ws:
+                if mem.ws.connected:
+                    mem.ws.close()
+
+            if mem.api:
+                mem.api.experiments()[0].close()
+                mem.api.remove_sample(mem.api.samples())
+            
+            a0.accept()  # Allow the window to close
+        else:
+            a0.ignore()  # Ignore the close event
 
 if __name__ == "__main__":
 
