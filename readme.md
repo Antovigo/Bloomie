@@ -1,6 +1,6 @@
 # Bloomie
 
-![Bloomie](screenshots/bloomie_setup_view.png =45%x) ![Bloomie](screenshots/bloomie_record_view.png =45%x) 
+![setup view](screenshots/bloomie_setup_view.png "setup view" =45%x) ![recording view](screenshots/bloomie_record_view.png "record view" =45%x) 
 
 ## Dependencies
 
