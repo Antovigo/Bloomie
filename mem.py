@@ -29,6 +29,7 @@ device_ids = {} # link a device's name to its zero-indexed id
 experiment_name = '' # name of the experiment
 file_path = '' # path to write the data to
 running = False # keeps track of whether recording is running
+active_devices = [] # list of devices that are currently recording
 
 api = None # placeholder for api object
 recorder = None # placeholder for data recorder object

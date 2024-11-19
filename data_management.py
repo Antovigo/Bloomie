@@ -37,7 +37,7 @@ class data_recorder(QThread):
 
         for device in mem.devices:
 
-            mem.cultures[device] = []
+            dev_cultures = []
 
             for channel in mem.channels:
 
@@ -46,10 +46,20 @@ class data_recorder(QThread):
                 
                 # Make a culture object to store temporary data
                 if reactor_label:
-                    mem.cultures[device].append(culture(reactor_label))
+                    dev_cultures.append(culture(reactor_label))
 
                 else: # don't record channels with no label
-                    mem.cultures[device].append(None)
+                    dev_cultures.append(None)
+
+            # Is the device active?
+            if any(dev_cultures):
+
+                print(f'Device {device} is active.')
+                mem.active_devices.append(device)
+                mem.cultures[device] = dev_cultures
+
+            else:
+                print(f'Device {device} is inactive.')
 
     def clear_backend(self):
         '''Clear the backend of any existing data.'''
@@ -88,7 +98,7 @@ class data_recorder(QThread):
             self.clear_backend()
 
             # Create the samples on the backend side
-            for device in mem.devices:
+            for device in mem.active_devices:
                 for channel in mem.channels:
 
                     # channel is one-indexed in backend, zero-indexed in frontend
@@ -148,7 +158,7 @@ class data_recorder(QThread):
                 file.write(new_line + '\n')
 
             # Emit the custom signal to indicate that new data is available (only after reading the last device)
-            if data[-1]['device'] == mem.devices[-1] or mem.config['always_refresh']:
+            if data[-1]['device'] == mem.active_devices[-1] or mem.config['always_refresh']:
                 self.data_updated.emit()
 
         # When the recording button is unchecked, stop the recording
@@ -170,7 +180,7 @@ class data_recorder(QThread):
         time.sleep(mem.config['sim_data_rate'])
 
         simulated_data = []
-        for device in mem.devices:
+        for device in mem.active_devices:
             for channel in mem.channels:
 
                 if not mem.cultures[device][channel]:

@@ -67,7 +67,7 @@ class CopyPasteTableWidget(QTableWidget):
         '''Erase the selected cells when the delete key is pressed.'''
 
         # Handle delete and backspace keys to clear the selected cells
-        if e.key() == Qt.Key_Delete:
+        if e.key() in [Qt.Key_Delete, Qt.Key_Backspace]:
             selected_ranges = self.selectedRanges()
             for selected_range in selected_ranges:
                 for row in range(selected_range.topRow(), selected_range.bottomRow() + 1):

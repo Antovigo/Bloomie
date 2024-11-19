@@ -412,7 +412,7 @@ class OD_reader_app(QMainWindow):
         highlighted_cultures = {color:[] for color in mem.config['highlight_colors']}
 
         # Plot the cultures that are not highlighted in gray
-        for device in mem.devices:
+        for device in mem.active_devices:
             for channel in mem.channels:
 
                 if mem.cultures[device][channel]:
