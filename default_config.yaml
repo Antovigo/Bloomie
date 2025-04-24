@@ -1,5 +1,5 @@
 # Default values for the experiment details
-default_ip_address: '10.119.220.209:8080' # Paulsson/Basan lab's readers
+default_ip_address: '10.119.211.100:8080' # Paulsson/Basan lab's readers
 default_experiment_name: ''
 default_interval: 15 # s
 default_standard_curve: 'Ecoli-ReusableGlassTube'
