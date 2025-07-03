@@ -71,3 +71,5 @@ For example, if you have 5000 points and the maximum is set to 1000, you can eit
 
 When you are done, click on "Record" again to stop recording data. You can also straight up close the window. It should be fine too. It's probably a good idea to restart the software whenever you make a new experiment anyways.
 
+### Known problems
+* The same internet connection should remain in place throughout the experiment. For example, you can't switch from ethernet to wifi while the experiment is running.
